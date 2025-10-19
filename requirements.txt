@@ -1,0 +1,5 @@
+flask
+pydantic
+langchain
+langchain-google-genai
+python-dotenv
