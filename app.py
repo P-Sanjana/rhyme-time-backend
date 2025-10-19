@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', api_key=os.getenv('GOOGLE_API_KEY'), temperature=0.4)
+llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', api_key=os.getenv('GOOGLE_API_KEY'), temperature=1.0)
 
 prompt = PromptTemplate(
     input_variables=["difficulty"],
