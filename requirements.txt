@@ -1,5 +1,5 @@
 flask
-flask-core
+flask-cors
 pydantic
 langchain
 langchain-core
