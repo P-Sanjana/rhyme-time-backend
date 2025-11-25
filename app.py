@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 from pydantic import ValidationError
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -11,6 +12,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', api_key=os.getenv('GOOGLE_API_KEY'), temperature=1.0)
 

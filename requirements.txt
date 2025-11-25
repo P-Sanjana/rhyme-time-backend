@@ -1,4 +1,5 @@
 flask
+flask-core
 pydantic
 langchain
 langchain-core
