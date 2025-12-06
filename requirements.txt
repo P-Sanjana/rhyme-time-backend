@@ -5,6 +5,7 @@ langchain
 langchain-core
 langchain-google-genai
 python-dotenv
+setuptools
 pronouncing
 wordfreq
 gunicorn
