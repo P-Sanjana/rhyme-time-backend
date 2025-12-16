@@ -1,10 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
 from pydantic import ValidationError
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 from models import RandomWordResponse
 import os
 import pronouncing
@@ -16,30 +14,35 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', api_key=os.getenv('GOOGLE_API_KEY'), temperature=1.0)
+client = InferenceClient(api_key=os.getenv('HF_TOKEN'))
 
-prompt = PromptTemplate(
-    input_variables=["difficulty"],
-    template=(
-        "Generate one English word based on difficulty level '{difficulty}'.\n"
-        "- Easy: many rhymes (e.g., cat, day)\n"
-        "- Medium: moderate rhymes (e.g., never, matter)\n"
-        "- Hard: few rhymes (e.g., orange, silver)\n"
-        "Return only the word, no punctuation, no explanation."
-    ),
-)
-
-parser = StrOutputParser()
-chain = prompt | llm | parser
 @app.route('/randomword')
 def get_random_word():
     difficulty = request.args.get('difficulty', '').lower()
     if difficulty not in ['easy', 'medium', 'hard']:
         return jsonify({'error': "Difficulty must be 'easy', 'medium', or 'hard'."}), 400
     try:
-        response = chain.invoke(difficulty)
-        word = response.strip().split()[0]
-        result = RandomWordResponse(word=word)
+        response = client.chat.completions.create(
+        model="Qwen/Qwen3-4B-Instruct-2507",
+        messages=[
+            {
+                "role": "system",
+                "content": 
+                    "You are an expert in English vocabulary. Generate one English dictionary word based on the gievn difficulty level. For example: "
+                    "- Easy: many rhymes\n"
+                    "- Medium: moderate rhymes\n"
+                    "- Hard: few rhymes\n"
+                    "Return only the word, no punctuation, no explanation. Give different word each time"
+            },
+            {
+                "role": "user",
+                "content": f"Give a random word from english dictionary with {difficulty} difficulty to rhyme with."
+            }
+        ],
+        temperature=1.5,
+        frequency_penalty=1.5,
+        )
+        result = RandomWordResponse(word=response.choices[0].message.content)
         return jsonify({'word': result.word}), 200
     except ValidationError as e:
         return jsonify({'error': 'Validation failed', 'details': e.errors()}), 500
