@@ -1,11 +1,9 @@
 flask
 flask-cors
 pydantic
-langchain
-langchain-core
-langchain-google-genai
 python-dotenv
 setuptools
 pronouncing
 wordfreq
 gunicorn
+huggingface_hub
